@@ -45,28 +45,6 @@ public class EchoBot extends ActivityHandler {
     @Override
     protected CompletableFuture<Void> onMessageActivity(TurnContext turnContext) {
         String teamsChannelId = turnContext.getActivity().teamsGetChannelId();
-        System.out.print(teamsChannelId);
-        SendProactiveMessage(turnContext);
-        return turnContext.sendActivity(
-            MessageFactory.text("EchoTeste: " + turnContext.getActivity().getText() + teamsChannelId)
-        ).thenApply(sendResult -> null);
-    } 
-
-    @Override
-    protected CompletableFuture<Void> onMembersAdded(
-        List<ChannelAccount> membersAdded,
-        TurnContext turnContext
-    ) {
-        return membersAdded.stream()
-            .filter(
-                member -> !StringUtils
-                    .equals(member.getId(), turnContext.getActivity().teamsGetChannelId())
-            ).map(channel -> turnContext.sendActivity(MessageFactory.text("Hello and welcome!")))
-            .collect(CompletableFutures.toFutureList()).thenApply(resourceResponses -> null);
-    }
-    
-    public CompletableFuture<Void> SendProactiveMessage(TurnContext turnContext){
-        String teamsChannelId = turnContext.getActivity().teamsGetChannelId();
         Activity message = MessageFactory.text("This will start a new thread in a channel");
         String serviceUrl = turnContext.getActivity().getServiceUrl();
         MicrosoftAppCredentials credentials = new MicrosoftAppCredentials(appId, appPassword);
@@ -83,7 +61,6 @@ public class EchoBot extends ActivityHandler {
         conversationParameters.setActivity(message);
         conversationParameters.setChannelData(channelData);
 
-        
 
         return adapter.createConversation(teamsChannelId,
             serviceUrl,
@@ -102,6 +79,23 @@ public class EchoBot extends ActivityHandler {
                 );
             }
         ).thenApply(started -> null);
+    } 
+
+    @Override
+    protected CompletableFuture<Void> onMembersAdded(
+        List<ChannelAccount> membersAdded,
+        TurnContext turnContext
+    ) {
+        return membersAdded.stream()
+            .filter(
+                member -> !StringUtils
+                    .equals(member.getId(), turnContext.getActivity().teamsGetChannelId())
+            ).map(channel -> turnContext.sendActivity(MessageFactory.text("Hello and welcome!")))
+            .collect(CompletableFutures.toFutureList()).thenApply(resourceResponses -> null);
+    }
+    
+    public CompletableFuture<Void> SendProactiveMessage(TurnContext turnContext){
+        return null;
     }
 
 }
